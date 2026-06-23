@@ -28,28 +28,54 @@ fi
 
 echo "Syncing $ROOT -> $TARGET"
 
-rsync -a --delete \
-  --exclude '.git' \
-  --exclude '.venv' \
-  --exclude 'venv' \
-  --exclude '__pycache__' \
-  --exclude 'website/node_modules' \
-  --exclude 'website/dist' \
-  --exclude 'website/.astro' \
-  --exclude 'config.ini' \
-  --exclude 'properties.ini' \
-  --exclude 'schema_converter/config.ini' \
-  --exclude 'ai_query/config.ini' \
-  --exclude 'monitoring/monitor_config.ini' \
-  --exclude 'monitoring/monitor_thresholds.ini' \
-  --exclude '.env' \
-  --exclude 'releases' \
-  --exclude '*.zip' \
-  --exclude '*.tar.gz' \
-  --exclude 'build' \
-  --exclude 'dist' \
-  --exclude '*.egg-info' \
-  "$ROOT/" "$TARGET/"
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a --delete \
+    --exclude '.git' \
+    --exclude '.venv' \
+    --exclude 'venv' \
+    --exclude '__pycache__' \
+    --exclude 'website/node_modules' \
+    --exclude 'website/dist' \
+    --exclude 'website/.astro' \
+    --exclude 'config.ini' \
+    --exclude 'properties.ini' \
+    --exclude 'schema_converter/config.ini' \
+    --exclude 'ai_query/config.ini' \
+    --exclude 'monitoring/monitor_config.ini' \
+    --exclude 'monitoring/monitor_thresholds.ini' \
+    --exclude '.env' \
+    --exclude 'releases' \
+    --exclude '*.zip' \
+    --exclude '*.tar.gz' \
+    --exclude 'build' \
+    --exclude 'dist' \
+    --exclude '*.egg-info' \
+    "$ROOT/" "$TARGET/"
+else
+  echo "rsync not found; using tar"
+  (cd "$ROOT" && tar cf - \
+    --exclude='.git' \
+    --exclude='.venv' \
+    --exclude='venv' \
+    --exclude='__pycache__' \
+    --exclude='website/node_modules' \
+    --exclude='website/dist' \
+    --exclude='website/.astro' \
+    --exclude='config.ini' \
+    --exclude='properties.ini' \
+    --exclude='schema_converter/config.ini' \
+    --exclude='ai_query/config.ini' \
+    --exclude='monitoring/monitor_config.ini' \
+    --exclude='monitoring/monitor_thresholds.ini' \
+    --exclude='.env' \
+    --exclude='releases' \
+    --exclude='*.zip' \
+    --exclude='*.tar.gz' \
+    --exclude='build' \
+    --exclude='dist' \
+    --exclude='*.egg-info' \
+    .) | (cd "$TARGET" && tar xf -)
+fi
 
 echo "Done. Next steps:"
 echo "  cd $TARGET"
